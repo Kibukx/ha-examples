@@ -1,0 +1,19 @@
+alias: Select Artist
+sequence:
+  - service: input_select.random
+    target:
+      entity_id: "{{ music_player_list }}"
+    data: {}
+  - variables:
+      artist: |
+        {% set artist = states(music_player_list) %}
+        {{ {'artist': artist} }}
+  - stop: End
+    response_variable: artist
+fields:
+  music_player_list:
+    selector:
+      entity: {}
+    name: music player list
+    required: true
+mode: single

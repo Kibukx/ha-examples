@@ -1,0 +1,47 @@
+alias: Scene Creator Script
+sequence:
+  - variables:
+      scene_name: "{{ name_var }}_{{ room_var }}"
+      scene_id: scene.{{ name_var }}_{{ room_var }}
+      sxc: |
+        {"scene": "{{ scene_name }}"}
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ states(scene_id) == 'unknown' }}"
+        sequence:
+          - service: scene.create
+            data:
+              snapshot_entities: "{{ my_entities_var }}"
+              scene_id: "{{ scene_name }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ states(scene_id) != 'unknown' }}"
+        sequence:
+          - service: scene.delete
+            target:
+              entity_id: "{{ scene_name }}"
+            data: {}
+          - service: scene.create
+            data:
+              snapshot_entities: "{{ my_entities_var }}"
+              scene_id: "{{ scene_name }}"
+  - stop: Captured Scene
+    response_variable: sxc
+fields:
+  name_var:
+    selector:
+      text: null
+    name: name var
+    required: true
+  room_var:
+    selector:
+      area: {}
+    name: room var
+    required: true
+  my_entities_var:
+    selector:
+      entity:
+        multiple: true
+    name: my entities var
+    required: true

@@ -1,0 +1,21 @@
+alias: Get On Lights in Room
+sequence:
+  - variables:
+      area: |
+        {{ room }}
+      entities: |
+        {% set lights = states.light |
+          selectattr('entity_id', 'in', area_entities(area)) |
+          selectattr('state', 'eq', 'on')|
+          map(attribute=('entity_id')) |
+          list | join(',') %}
+        {"lights": "{{lights}}"}
+  - stop: Got light list
+    response_variable: entities
+mode: single
+fields:
+  room:
+    selector:
+      area: {}
+    name: room
+    required: true

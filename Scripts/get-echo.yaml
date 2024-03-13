@@ -1,0 +1,20 @@
+alias: Get Echo from Room
+sequence:
+  - variables:
+      area: "{{ room }}"
+      echo_media_players: |
+        {% set echo = states.media_player |
+          rejectattr('state', 'eq', 'unavailable') |
+          selectattr('entity_id', 'in', area_entities(area)) |
+          select('match', '.*echo*') |
+          map(attribute=('entity_id')) | list  %}
+        {"echo_media_players": {{ echo }} }
+  - stop: Got my speaker
+    response_variable: echo_media_players
+mode: single
+fields:
+  room:
+    selector:
+      area: {}
+    name: room
+    required: true
